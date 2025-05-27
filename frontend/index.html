@@ -1,0 +1,55 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <form id="form">
+      <input type="file" id="file" />
+      <button type="submit">Enviar</button>
+    </form>
+    <h3>Resultados:</h3>
+    <div style="display: flex">
+      <div style="display: flex; flex-direction: column; margin-right: 3rem">
+        <label>Seu input:</label>
+        <img id="inputPreview" src="" style="max-width: 300px" />
+      </div>
+      <div style="display: flex; flex-direction: column">
+        <label>Resultado:</label>
+        <img id="resultPreview" src="" style="max-width: 300px" />
+      </div>
+    </div>
+
+    <pre id="result"></pre>
+  </body>
+  <script>
+    document.getElementById("form").onsubmit = async (e) => {
+      e.preventDefault();
+      const fileInput = document.getElementById("file");
+      const file = fileInput.files[0];
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const localUrl = URL.createObjectURL(file);
+
+      // Substitui o SRC da imagem
+      document.getElementById("inputPreview").src = localUrl;
+      const res = await fetch("/recognize", {
+        method: "POST",
+        body: formData,
+      });
+
+      const json = await res.json();
+
+      if (json === "Pessoa desconhecida") {
+        alert(json);
+        document.getElementById("resultPreview").src = "";
+      } else {
+        document.getElementById(
+          "resultPreview"
+        ).src = `/images/rostos_dataset/${json[0]}.jpg`;
+      }
+    };
+  </script>
+</html>
