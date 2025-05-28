@@ -16,7 +16,7 @@ def carregar_database(pasta):
         caminho = os.path.join(pasta, arquivo)
         if not arquivo.lower().endswith(('.jpg', '.jpeg', '.png')): 
             continue
-        nome = os.path.splitext(arquivo)[0]
+        nome = arquivo
         print(nome)
         img = cv2.imread(caminho)
         if img is None:
@@ -34,7 +34,8 @@ def carregar_database(pasta):
 def criar_index(database):
     nomes = list(database.keys())
     embeddings_referencias = np.array(list(database.values()),'f')
-    embeddings_referencias = embeddings_referencias / np.linalg.norm(embeddings_referencias, axis=1, keepdims=True)
+    faiss.normalize_L2(embeddings_referencias)
+    
     index = faiss.IndexFlatL2(embeddings_referencias.shape[1])  # L2 = Distância Euclidiana
     index.add(embeddings_referencias)
     
