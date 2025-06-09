@@ -6,7 +6,7 @@ import faiss
 import pickle
 import time
 
-from app.face_analysis import face_app 
+from app.core.face_analysis import face_app 
 
 PASTA_REFERENCIAS = 'app/db/rostos_dataset'
 

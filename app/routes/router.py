@@ -1,16 +1,11 @@
 from fastapi import APIRouter,UploadFile, File
 from fastapi.responses import HTMLResponse
-import app.recognition as recognition
-import app.init_db as db
+import app.services.recognition_service as recognition_service
+import app.db.init_db as db
 import shutil
 import os
 
 router = APIRouter()
-
-@router.get("/", response_class=HTMLResponse)
-def read_root():
-    with open("frontend/index.html",encoding="utf-8") as f:
-        return f.read()
     
 @router.post("/recognize")
 def recognize(file: UploadFile = File(...)):
@@ -18,4 +13,4 @@ def recognize(file: UploadFile = File(...)):
 
     with open(temp_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
-        return recognition.recognize_face()
+        return recognition_service.recognize_face()
