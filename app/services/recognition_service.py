@@ -10,13 +10,13 @@ from app.core.face_analysis import face_app
 
 IMAGEM_PATH = 'app/db/testes/temp.jpg'
 
-def reconhecer(index):
+def reconhecer(index,k):
     
     img = carregarImagem()
     
     emb = carregarEmbedding(img)
     
-    distances, indices = index.search(emb, k=3)
+    distances, indices = index.search(emb, k=k)
     
     print("Distâncias:", distances[0])
     
@@ -52,7 +52,7 @@ def carregar_indices():
         return index,nomes
     return None, None
 
-def recognize_face():
+def recognize_face(k=1):
     tick = time.time()
     
     index,nomes = carregar_indices()
@@ -60,7 +60,7 @@ def recognize_face():
     if index is None:
         return "Falha ao carregar indíces"
     
-    resultadoIndices = reconhecer(index)
+    resultadoIndices = reconhecer(index,k)
     tack = time.time()
     print(f"Tempo de execução total : {tack-tick}")
 
