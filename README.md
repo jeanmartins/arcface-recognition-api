@@ -21,3 +21,11 @@ Recommended version: CUDA 12.x
 
 2. Install cuDNN (Deep Neural Network library):
 https://developer.nvidia.com/rdp/cudnn-download
+
+
+Running on Docker (optional):
+
+docker build -t arcface-api .
+
+docker run --gpus all -p 8000:8000 arcface-api
+

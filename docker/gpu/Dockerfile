@@ -5,6 +5,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Instala dependências do sistema e ferramentas necessárias
 RUN apt-get update && apt-get install -y \
     python3.10 python3-pip python3.10-dev \
+    build-essential \
     libgl1-mesa-glx libglib2.0-0 git ca-certificates \
     wget unzip \
     && update-ca-certificates \
@@ -17,8 +18,8 @@ RUN ln -sf /usr/bin/python3.10 /usr/bin/python && ln -sf /usr/bin/pip3 /usr/bin/
 WORKDIR /app
 
 # Copia requirements e instala dependências Python
-COPY requirements.txt .
-RUN pip install --upgrade pip && pip install --no-cache-dir -r requirements.txt
+COPY requirements_gpu.txt .
+RUN pip install --upgrade pip && pip install --no-cache-dir -r requirements_gpu.txt
 
 # Baixa e prepara o modelo buffalo_l apenas uma vez na build
 RUN mkdir -p /root/.insightface/models/buffalo_l && \
