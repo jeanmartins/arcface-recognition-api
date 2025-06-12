@@ -16,4 +16,4 @@ else:
     
 face_app  = FaceAnalysis(name="buffalo_l", providers=providers)
 
-face_app.prepare(ctx_id=ctx_id)
+face_app.prepare(ctx_id=ctx_id,det_size=(320, 320))

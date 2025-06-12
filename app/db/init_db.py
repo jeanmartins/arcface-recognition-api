@@ -8,7 +8,7 @@ import time
 
 from app.core.face_analysis import face_app 
 
-PASTA_REFERENCIAS = 'app/db/rosto_pequeno'
+PASTA_REFERENCIAS = 'app/db/rostos_dataset'
 
 def carregar_database(pasta):
     database = {}
