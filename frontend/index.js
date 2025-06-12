@@ -28,7 +28,7 @@
         const formData = new FormData();
         formData.append("file", file);
         formData.append("k", k);
-        formData.append("addToIndex", addToIndex);
+        formData.append("adicionarImgAoDb", addToIndex);
 
         const res = await fetch("/recognize", {
           method: "POST",

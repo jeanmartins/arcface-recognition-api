@@ -1,5 +1,7 @@
 
 import os
+import shutil
+import uuid
 import cv2
 import numpy as np
 import faiss
@@ -10,23 +12,54 @@ from app.core.face_analysis import face_app
 
 IMAGEM_PATH = 'app/db/testes/temp.jpg'
 
-def reconhecer(index,k):
+def recognize_face(k=1,adicionarImgAoDb=False):
+    tick = time.time()
+    
+    index,nomes = carregar_indices()
+    
+    if index is None:
+        return "Falha ao carregar indíces"
+    
+    resultadoIndices = reconhecer(index,nomes,k,adicionarImgAoDb)
+    tack = time.time()
+    print(f"Tempo de execução total : {tack-tick}")
+
+    if resultadoIndices is None:
+        return "Pessoa desconhecida"
+
+    result = list()        
+    for idx in resultadoIndices:
+        result.append(nomes[idx])
+    return result
+
+def carregar_indices():
+    if os.path.exists("app/db/indice_rostos.index") and os.path.exists("app/db/nomes.pkl"):
+        index = faiss.read_index("app/db/indice_rostos.index")
+        with open("app/db/nomes.pkl", "rb") as f:
+            nomes = pickle.load(f)
+        return index,nomes
+    return None, None
+
+def reconhecer(index,nomes,k,adicionarImgAoDb=False):
     
     img = carregarImagem()
     
     emb = carregarEmbedding(img)
     
     distances, indices = index.search(emb, k=k)
-    
     print("Distâncias:", distances[0])
     
     reconhecidos = []
     for i, dist in enumerate(distances[0]):
         if dist <= 1.0:
             reconhecidos.append(indices[0][i])
-
+    
+    if not reconhecidos and adicionarImgAoDb:
+        adicionar_ao_database_e_index(nomes,index,emb)
+    
     if not reconhecidos:
         return None
+    
     return reconhecidos
 
 def carregarImagem():
@@ -44,30 +77,13 @@ def carregarEmbedding(img):
     emb = faces[0].embedding.reshape(1, -1).astype('float32')
     return emb / np.linalg.norm(emb, axis=1, keepdims=True)
 
-def carregar_indices():
-    if os.path.exists("app/db/indice_rostos.index") and os.path.exists("app/db/nomes.pkl"):
-        index = faiss.read_index("app/db/indice_rostos.index")
-        with open("app/db/nomes.pkl", "rb") as f:
-            nomes = pickle.load(f)
-        return index,nomes
-    return None, None
-
-def recognize_face(k=1):
-    tick = time.time()
-    
-    index,nomes = carregar_indices()
-    
-    if index is None:
-        return "Falha ao carregar indíces"
-    
-    resultadoIndices = reconhecer(index,k)
-    tack = time.time()
-    print(f"Tempo de execução total : {tack-tick}")
-
-    if resultadoIndices is None:
-        return "Pessoa desconhecida"
-
-    result = list()        
-    for idx in resultadoIndices:
-        result.append(nomes[idx])
-    return result
+def adicionar_ao_database_e_index(nomes,index,embedding):
+        nome_arquivo = f"{uuid.uuid4().hex}.jpg"
+        shutil.copyfile(IMAGEM_PATH, f"app/db/rostos_dataset/{nome_arquivo}")
+        
+        nomes.append(nome_arquivo)
+        with open("app/db/nomes.pkl", "wb") as f:
+            pickle.dump(nomes, f)
+        
+        index.add(embedding)
+        faiss.write_index(index, "app/db/indice_rostos.index")
