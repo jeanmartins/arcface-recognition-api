@@ -1,7 +1,6 @@
 
 import os
 import shutil
-import uuid
 import cv2
 import numpy as np
 import faiss
@@ -11,27 +10,31 @@ from filelock import FileLock, Timeout
 
 from app.core.face_analysis import face_app
 
-IMAGEM_PATH = 'app/db/testes/temp.jpg'
+IMAGEM_PATH = 'app/db/testes'
+DATASET_PATH = 'app/db/rostos_dataset'
 
-def recognize_face(k=1,adicionarImgAoDb=False):
+def recognize_face(nome_arquivo,k=1,adicionarImgAoDb=False):
+    
+    if nome_arquivo is None:
+        return {"status": "failure", "message": "Nome do arquivo não informado.", "data": []}
+    
     tick = time.time()
     
     index,nomes = carregar_indices()
     
     if index is None:
-        return "Falha ao carregar indíces"
+        return {"status": "failure", "message": "Falha ao carregar indíces.", "data": []}
     
-    resultadoIndices = reconhecer(index,nomes,k,adicionarImgAoDb)
+    resultadoIndices,errMessage = reconhecer(nome_arquivo,index,nomes,k,adicionarImgAoDb)
     tack = time.time()
     print(f"Tempo de execução total : {tack-tick}")
 
     if resultadoIndices is None:
-        return "Pessoa desconhecida"
+        return {"status": "failure", "message": errMessage, "data": []}
 
-    result = list()        
-    for idx in resultadoIndices:
-        result.append(nomes[idx])
-    return result
+    result = [nomes[idx] for idx in resultadoIndices]
+
+    return {"status": "success", "message": "Pessoa reconhecida.", "data": result}
 
 def carregar_indices():
     if os.path.exists("app/db/indice_rostos.index") and os.path.exists("app/db/nomes.pkl"):
@@ -41,15 +44,17 @@ def carregar_indices():
         return index,nomes
     return None, None
 
-def reconhecer(index,nomes,k,adicionarImgAoDb=False):
+def reconhecer(nome_arquivo,index,nomes,k,adicionarImgAoDb=False):
     
-    img = carregarImagem()
+    img = carregarImagem(nome_arquivo)
+    
+    if img is None:
+        return None,"Erro ao carregar a imagem."
     
     emb = carregarEmbedding(img)
     
     if emb is None:
-        print("Nenhuma face detectada.")
-        return None
+        return None,"Erro ao processar imagem."
     
     distances, indices = index.search(emb, k=k)
     
@@ -60,17 +65,18 @@ def reconhecer(index,nomes,k,adicionarImgAoDb=False):
             reconhecidos.append(indices[0][i])
     
     if not reconhecidos and adicionarImgAoDb:
-        adicionar_ao_database_e_index(index,emb)
+        msg = adicionar_ao_database_e_index(index,emb,nome_arquivo)
+        return None, msg
     
     if not reconhecidos:
-        return None
+        return None,"Pessoa não reconhecida."
     
-    return reconhecidos
+    return reconhecidos,None
 
-def carregarImagem():
-    img = cv2.imread(IMAGEM_PATH)
+def carregarImagem(nome_arquivo):
+    img = cv2.imread(os.path.join(IMAGEM_PATH, nome_arquivo))
+    
     if img is None:
-        print("Erro ao carregar a imagem")
         return None
     return img
 
@@ -82,9 +88,8 @@ def carregarEmbedding(img):
     emb = faces[0].embedding.reshape(1, -1).astype('float32')
     return emb / np.linalg.norm(emb, axis=1, keepdims=True)
 
-def adicionar_ao_database_e_index(index, embedding):
-    nome_arquivo = f"{uuid.uuid4().hex}.jpg"
-    shutil.copyfile(IMAGEM_PATH, f"app/db/rostos_dataset/{nome_arquivo}")
+def adicionar_ao_database_e_index(index, embedding,nome_arquivo):
+    shutil.copyfile(os.path.join(IMAGEM_PATH, nome_arquivo), os.path.join(DATASET_PATH, nome_arquivo))
     try:
         with FileLock("app/db/nomes.lock", timeout=10):
             if os.path.exists("app/db/nomes.pkl"):
@@ -100,5 +105,8 @@ def adicionar_ao_database_e_index(index, embedding):
         with FileLock("app/db/indice_rostos.index.lock", timeout=10):
             index.add(embedding)
             faiss.write_index(index, "app/db/indice_rostos.index")
+            
+        return "Pessoa não reconhecida. Foto adicionada ao banco de dados."
     except Timeout:
         print("Falha ao obter lock — recurso ocupado por muito tempo.")
+        return "Ocorreu um erro ao adicionar foto ao banco de dados."

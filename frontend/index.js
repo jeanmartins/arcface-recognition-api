@@ -35,12 +35,12 @@
           body: formData,
         });
 
-        const data = await res.json();
+        const response = await res.json();
         resultsDiv.classList.remove("hidden");
         resultList.innerHTML = "";
 
-        if (Array.isArray(data)) {
-          data.forEach((nome) => {
+        if (response.status === "success") {
+          response.data.forEach((nome) => {
             const img = document.createElement("img");
             img.src = `/images/rostos_dataset/${nome}`;
             img.alt = nome;
@@ -48,6 +48,6 @@
             resultList.appendChild(img);
           });
         } else {
-          resultList.innerHTML = `<p>${data}</p>`;
+          resultList.innerHTML = `<p>${response.message}</p>`;
         }
       });
