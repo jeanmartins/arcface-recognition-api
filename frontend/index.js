@@ -1,8 +1,14 @@
-   const form = document.getElementById("uploadForm");
+      const form = document.getElementById("uploadForm");
       const imageInput = document.getElementById("imageInput");
       const previewImage = document.getElementById("previewImage");
       const resultsDiv = document.getElementById("results");
       const resultList = document.getElementById("resultList");
+
+      await obterTamanhoDoBancoDedados();
+      
+      resultsDiv.classList.remove("hidden");
+      resultList.innerHTML = "";
+
 
       imageInput.addEventListener("change", () => {
         const file = imageInput.files[0];
@@ -51,3 +57,19 @@
           resultList.innerHTML = `<p>${response.message}</p>`;
         }
       });
+
+
+
+      async function obterTamanhoDoBancoDedados(){
+       const res = await fetch("/info", {
+          method: "GET"
+        });
+
+        const response = await res.json();
+
+        if (response.status === "success") {
+          const quantidade = response.data.quantidade_rostos;
+          const texto = `Número de fotos presentes nessa instância: ${quantidade}`;
+          document.getElementById("quantidadeFotos").textContent = texto;
+        }
+      }

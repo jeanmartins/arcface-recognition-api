@@ -1,3 +1,4 @@
+import pickle
 from fastapi import APIRouter,UploadFile, File,Form
 import app.services.recognition_service as recognition_service
 import shutil
@@ -19,3 +20,23 @@ async def recognize(file: UploadFile = File(...), k: int = Form(1), adicionarImg
         os.remove(temp_path)
 
     return response
+
+@router.get("/info")
+def get_info():
+    try:
+        with open("app/db/nomes.pkl", "rb") as f:
+            nomes = pickle.load(f)
+        return {
+            "status": "success",
+            "data": {
+                "quantidade_rostos": len(nomes)
+            }
+        }
+    except FileNotFoundError:
+        return {
+            "status": "failure",
+            "message": "Arquivo de nomes não encontrado.",
+            "data": {
+                "quantidade_rostos": 0
+            }
+        }
