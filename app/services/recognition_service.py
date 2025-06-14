@@ -7,6 +7,7 @@ import numpy as np
 import faiss
 import pickle
 import time
+from filelock import FileLock, Timeout
 
 from app.core.face_analysis import face_app
 
@@ -46,16 +47,20 @@ def reconhecer(index,nomes,k,adicionarImgAoDb=False):
     
     emb = carregarEmbedding(img)
     
+    if emb is None:
+        print("Nenhuma face detectada.")
+        return None
+    
     distances, indices = index.search(emb, k=k)
-    print("Distâncias:", distances[0])
     
     reconhecidos = []
     for i, dist in enumerate(distances[0]):
+        print(f"Match {i+1}: distância = {dist:.4f}, nome = {nomes[indices[0][i]]}")
         if dist <= 1.0:
             reconhecidos.append(indices[0][i])
     
     if not reconhecidos and adicionarImgAoDb:
-        adicionar_ao_database_e_index(nomes,index,emb)
+        adicionar_ao_database_e_index(index,emb)
     
     if not reconhecidos:
         return None
@@ -77,13 +82,23 @@ def carregarEmbedding(img):
     emb = faces[0].embedding.reshape(1, -1).astype('float32')
     return emb / np.linalg.norm(emb, axis=1, keepdims=True)
 
-def adicionar_ao_database_e_index(nomes,index,embedding):
-        nome_arquivo = f"{uuid.uuid4().hex}.jpg"
-        shutil.copyfile(IMAGEM_PATH, f"app/db/rostos_dataset/{nome_arquivo}")
-        
-        nomes.append(nome_arquivo)
-        with open("app/db/nomes.pkl", "wb") as f:
-            pickle.dump(nomes, f)
-        
-        index.add(embedding)
-        faiss.write_index(index, "app/db/indice_rostos.index")
+def adicionar_ao_database_e_index(index, embedding):
+    nome_arquivo = f"{uuid.uuid4().hex}.jpg"
+    shutil.copyfile(IMAGEM_PATH, f"app/db/rostos_dataset/{nome_arquivo}")
+    try:
+        with FileLock("app/db/nomes.lock", timeout=10):
+            if os.path.exists("app/db/nomes.pkl"):
+                with open("app/db/nomes.pkl", "rb") as f:
+                    nomes = pickle.load(f)
+            else:
+                nomes = []
+
+            nomes.append(nome_arquivo)
+            with open("app/db/nomes.pkl", "wb") as f:
+                pickle.dump(nomes, f)
+
+        with FileLock("app/db/indice_rostos.index.lock", timeout=10):
+            index.add(embedding)
+            faiss.write_index(index, "app/db/indice_rostos.index")
+    except Timeout:
+        print("Falha ao obter lock — recurso ocupado por muito tempo.")
