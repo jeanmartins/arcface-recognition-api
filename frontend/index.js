@@ -5,7 +5,6 @@
       const resultList = document.getElementById("resultList");
 
       await obterTamanhoDoBancoDedados();
-      
       resultsDiv.classList.remove("hidden");
       resultList.innerHTML = "";
 
@@ -46,6 +45,7 @@
         resultList.innerHTML = "";
 
         if (response.status === "success") {
+          showSuccessToast(response.message);
           response.data.forEach((nome) => {
             const img = document.createElement("img");
             img.src = `/images/rostos_dataset/${nome}`;
@@ -56,6 +56,7 @@
         } else {
           resultList.innerHTML = `<p>${response.message}</p>`;
         }
+        await obterTamanhoDoBancoDedados();
       });
 
 
@@ -73,3 +74,22 @@
           document.getElementById("quantidadeFotos").textContent = texto;
         }
       }
+
+      function showSuccessToast(message = "Reconhecimento realizado com sucesso!") {
+      const toast = document.getElementById("successToast");
+      const toastText = document.getElementById("toastMessage");
+      toastText.textContent = message;
+
+      toast.classList.remove("hidden");
+      const innerDiv = toast.querySelector("div");
+      innerDiv.classList.remove("opacity-0", "translate-y-2");
+      innerDiv.classList.add("opacity-100", "translate-y-0");
+
+      setTimeout(() => {
+        innerDiv.classList.add("opacity-0", "translate-y-2");
+        innerDiv.classList.remove("opacity-100", "translate-y-0");
+
+        setTimeout(() => {
+          toast.classList.add("hidden");
+        }, 300); 
+      }, 3000); 

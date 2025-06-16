@@ -25,16 +25,16 @@ def recognize_face(nome_arquivo,k=1,adicionarImgAoDb=False):
     if index is None:
         return {"status": "failure", "message": "Falha ao carregar indíces.", "data": []}
     
-    resultadoIndices,errMessage = reconhecer(nome_arquivo,index,nomes,k,adicionarImgAoDb)
+    resultadoIndices,messages = reconhecer(nome_arquivo,index,nomes,k,adicionarImgAoDb)
     tack = time.time()
     print(f"Tempo de execução total : {tack-tick}")
 
     if resultadoIndices is None:
-        return {"status": "failure", "message": errMessage, "data": []}
+        return {"status": "failure", "message": " ".join(messages), "data": []}
 
     result = [nomes[idx] for idx in resultadoIndices]
 
-    return {"status": "success", "message": "Pessoa reconhecida.", "data": result}
+    return {"status": "success", "message": " ".join(messages), "data": result}
 
 def carregar_indices():
     if os.path.exists("app/db/indice_rostos.index") and os.path.exists("app/db/nomes.pkl"):
@@ -45,16 +45,16 @@ def carregar_indices():
     return None, None
 
 def reconhecer(nome_arquivo,index,nomes,k,adicionarImgAoDb=False):
-    
+    msgs = []
     img = carregarImagem(nome_arquivo)
     
     if img is None:
-        return None,"Erro ao carregar a imagem."
+        return None,["Erro ao carregar a imagem."]
     
     emb = carregarEmbedding(img)
     
     if emb is None:
-        return None,"Erro ao processar imagem."
+        return None,["Erro ao processar imagem."]
     
     distances, indices = index.search(emb, k=k)
     
@@ -64,14 +64,17 @@ def reconhecer(nome_arquivo,index,nomes,k,adicionarImgAoDb=False):
         if dist <= 1.0:
             reconhecidos.append(indices[0][i])
     
-    if not reconhecidos and adicionarImgAoDb:
+    
+    if adicionarImgAoDb:
         msg = adicionar_ao_database_e_index(index,emb,nome_arquivo)
-        return None, msg
+        msgs.append(msg)
     
     if not reconhecidos:
-        return None,"Pessoa não reconhecida."
+        msgs.append("Pessoa não reconhecida.")
+        return None,msgs
     
-    return reconhecidos,None
+    msgs.append("Pessoa reconhecida.")
+    return reconhecidos,msgs
 
 def carregarImagem(nome_arquivo):
     img = cv2.imread(os.path.join(IMAGEM_PATH, nome_arquivo))
@@ -106,7 +109,7 @@ def adicionar_ao_database_e_index(index, embedding,nome_arquivo):
             index.add(embedding)
             faiss.write_index(index, "app/db/indice_rostos.index")
             
-        return "Pessoa não reconhecida. Foto adicionada ao banco de dados."
+        return "Foto adicionada ao banco de dados."
     except Timeout:
         print("Falha ao obter lock — recurso ocupado por muito tempo.")
         return "Ocorreu um erro ao adicionar foto ao banco de dados."
