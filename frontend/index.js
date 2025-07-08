@@ -48,7 +48,7 @@
           showSuccessToast(response.message);
           response.data.forEach((nome) => {
             const img = document.createElement("img");
-            img.src = `/images/rostos_dataset/${nome}`;
+            img.src = `/images/${nome}`;
             img.alt = nome;
             img.classList = "max-h-80"
             resultList.appendChild(img);
