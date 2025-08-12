@@ -7,8 +7,8 @@ import time
 
 from app.core.face_analysis import face_app 
 
-# PASTA_BASE = "/app/db"
-PASTA_BASE = r"C:\Users\jean_martins\Desktop\facial-recognition-api\app\db"
+PASTA_BASE = "/app/db"
+# PASTA_BASE = r"C:\Users\jean_martins\Desktop\facial-recognition-api\app\db"
 PASTA_REFERENCIAS = os.getenv("PASTA_REFERENCIAS", os.path.join(PASTA_BASE, "rostos_dataset"))
 PASTA_INDICE = PASTA_BASE+"/index"
 
