@@ -24,7 +24,7 @@ async def recognize(file: UploadFile = File(...), k: int = Form(1), adicionarImg
 @router.get("/info")
 def get_info():
     try:
-        with open("app/db/nomes.pkl", "rb") as f:
+        with open("app/db/index/nomes.pkl", "rb") as f:
             nomes = pickle.load(f)
         return {
             "status": "success",

@@ -50,7 +50,7 @@
             const img = document.createElement("img");
             img.src = `/images/${nome}`;
             img.alt = nome;
-            img.classList = "max-h-80"
+            img.classList = "max-h-40"
             resultList.appendChild(img);
           });
         } else {
