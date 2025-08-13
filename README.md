@@ -25,7 +25,15 @@ https://developer.nvidia.com/rdp/cudnn-download
 
 Running on Docker (optional):
 
-docker build -t arcface-api .
+1. You need to rename docker-compose-sample.yml to docker-compose.yml
 
-docker run --gpus all -p 8000:8000 arcface-api
+2. You need to create folders for dataset, new uploaded images and for the index files and paste the path for these folders in docker-compose.yml
 
+
+With GPU:
+
+docker-compose up -d app-gpu
+
+With CPU:
+
+docker-compose up -d app-cpu
