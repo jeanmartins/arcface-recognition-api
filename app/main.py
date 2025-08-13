@@ -13,5 +13,5 @@ async def startup_event():
 app.include_router(router)
 
 
-app.mount("/images", StaticFiles(directory="app/db/"), name="images")
+app.mount("/images", StaticFiles(directory="/app/db/"), name="images")
 app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")

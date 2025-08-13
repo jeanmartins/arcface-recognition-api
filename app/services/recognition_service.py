@@ -9,7 +9,7 @@ from filelock import FileLock, Timeout
 
 from app.core.face_analysis import face_app
 
-PASTA_BASE = os.path.abspath("app/db")
+PASTA_BASE = "/app/db"
 PASTA_TESTES = os.path.join(PASTA_BASE, "testes")
 PASTA_INDICE = os.path.join(PASTA_BASE, "index")
 PASTA_NOVAS_IMAGENS = os.getenv("PASTA_NOVAS_IMAGENS", os.path.join(PASTA_BASE, "novas_imagens"))

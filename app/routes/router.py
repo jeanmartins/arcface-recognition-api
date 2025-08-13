@@ -9,8 +9,10 @@ router = APIRouter()
     
 @router.post("/recognize")
 async def recognize(file: UploadFile = File(...), k: int = Form(1), adicionarImgAoDb: bool = Form(False)):
+    temp_dir = "/app/db/testes"
+    os.makedirs(temp_dir, exist_ok=True)
     nome_arquivo = f"{uuid.uuid4().hex}.jpg"
-    temp_path = os.path.join("app/db/testes", nome_arquivo)
+    temp_path = os.path.join(temp_dir, nome_arquivo)
     with open(temp_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
         
@@ -24,7 +26,7 @@ async def recognize(file: UploadFile = File(...), k: int = Form(1), adicionarImg
 @router.get("/info")
 def get_info():
     try:
-        with open("app/db/index/nomes.pkl", "rb") as f:
+        with open("/app/db/index/nomes.pkl", "rb") as f:
             nomes = pickle.load(f)
         return {
             "status": "success",
