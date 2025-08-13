@@ -1,6 +1,11 @@
+db/
+*.zip
+*.tar
+*.tar.gz
 __pycache__/
-.git/
-.vscode/
 *.pyc
-*.log
-*.DS_Store
+*.pyo
+*.pyd
+.env
+venv/
+.git/
