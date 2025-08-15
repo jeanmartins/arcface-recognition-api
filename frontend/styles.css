@@ -84,3 +84,13 @@ footer  p {
     color: #485156;
 
 }
+
+      .checkbox-row {
+        position: relative;
+        top: -4px;
+      }
+
+      /* Sobe todos os outros campos exceto botão e checkbox */
+      form > div:not(.cc-btn-wrapper):not(.checkbox-row) {
+        margin-top: -8px;
+      }
