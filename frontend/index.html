@@ -4,14 +4,29 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Reconhecimento Facial</title>
+    <link rel="stylesheet" href="styles.css" />
     <script src="https://cdn.tailwindcss.com"></script>
   </head>
   <body class="bg-gray-100 text-gray-800">
+    <header
+      class="py-6 bg-gradient-to-l from-[#56BFC9] to-[#24A637] flex items-center justify-center gap-6"
+    >
+      <!-- Logo à esquerda -->
+      <img
+        src="https://www.supesp.ce.gov.br/wp-content/uploads/sites/89/2021/04/SUPESP-ORGAO-SEC-INVERTIDA-WEB-BRANCA.svg"
+        class="max-w-[20rem]"
+      />
+      <div class="verticalLine"></div>
+      <!-- Texto ao lado da imagem -->
+      <h1 class="text-3xl font-bold text-white text-center">
+        Sistema de Reconhecimento Facial
+      </h1>
+    </header>
+
     <div class="max-w-3xl mx-auto mt-10 p-6 bg-white rounded-xl shadow-md">
-      <h1 class="text-2xl font-bold mb-4 text-center">Reconhecimento Facial</h1>
-        <p id="quantidadeFotos" class="text-center text-gray-600 mb-4">
-          Número de fotos presentes nessa instância: 0
-        </p>
+      <p id="quantidadeFotos" class="text-center text-gray-600 mb-4">
+        Número de fotos presentes nessa instância: 0
+      </p>
 
       <form id="uploadForm" class="space-y-4">
         <div>
@@ -54,28 +69,44 @@
             class="w-20 border border-gray-300 p-1 rounded-md"
           />
         </div>
-        <button
-          type="submit"
-          class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-        >
-          Enviar e Reconhecer
-        </button>
+        <div class="cc-btn-wrapper">
+          <button
+            type="submit"
+            class="btn btn-primary w-full font-bold py-2 px-4 rounded"
+          >
+            Enviar e Reconhecer
+          </button>
+        </div>
       </form>
       <div id="results" class="mt-6 hidden">
         <h2 class="text-xl font-semibold mb-2">Resultados:</h2>
         <div id="resultList" class="flex flex-wrap justify-center gap-10"></div>
+      </div>
+      
     </div>
 
-    <script  type="module" src="index.js"></script>
+    <script type="module" src="index.js"></script>
+
+    <div id="successToast" class="fixed top-5 right-5 z-50">
+      <div
+        class="flex items-center p-4 max-w-xs text-green-800 bg-green-100 rounded-lg shadow-lg transition duration-300 ease-out transform opacity-0 translate-y-2"
+        role="alert"
+      >
+        <svg
+          class="w-5 h-5 mr-2 text-green-700"
+          fill="currentColor"
+          viewBox="0 0 20 20"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M16.707 5.293a1 1 0 00-1.414 0L9 11.586 5.707 8.293a1 1 0 00-1.414 1.414l4 4a1 1 0 001.414 0l7-7a1 1 0 000-1.414z"
+            clip-rule="evenodd"
+          ></path>
+        </svg>
+        <span id="toastMessage" class="text-sm font-medium"
+          >Reconhecimento realizado com sucesso!</span
+        >
+      </div>
+    </div>
   </body>
-<div id="successToast" class="fixed top-5 right-5 z-50">
-  <div class="flex items-center p-4 max-w-xs text-green-800 bg-green-100 rounded-lg shadow-lg transition duration-300 ease-out transform opacity-0 translate-y-2" role="alert">
-    <svg class="w-5 h-5 mr-2 text-green-700" fill="currentColor" viewBox="0 0 20 20">
-      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 00-1.414 0L9 11.586 5.707 8.293a1 1 0 00-1.414 1.414l4 4a1 1 0 001.414 0l7-7a1 1 0 000-1.414z" clip-rule="evenodd"></path>
-    </svg>
-    <span id="toastMessage" class="text-sm font-medium">Reconhecimento realizado com sucesso!</span>
-  </div>
-</div>
 </html>
-
-
